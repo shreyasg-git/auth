@@ -16,13 +16,9 @@ const AuthContextProvider: React.FC<any> = ({ children }) => {
   const [user, setUser] = useState({});
   const isLoggedIn = useMemo(() => {
     const token = getCookieValueByName("Authorization");
-
-    console.log("TOKENNNNNNNNNN", { token });
-
     if (token) {
       return true;
     }
-
     return false;
   }, [user]);
 

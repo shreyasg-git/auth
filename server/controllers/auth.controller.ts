@@ -13,34 +13,36 @@ export const registerController = async (req, res, next) => {
       return res.status(400).json({
         status: false,
         message: "User already exists",
-        // data: user,
       });
     }
 
     const user = await registerUser(req.body);
-    res.cookie("Authorization", `Bearer ${user.accessToken}`, {
-      // httpOnly: true,
-    });
+    // res.cookie("Authorization", `Bearer ${user.accessToken}`, {});
     res.status(200).json({
       status: true,
       message: "User created successfully",
       data: user,
     });
   } catch (e) {
-    // next(createHttpError(e.statusCode, e.message));
     console.log("ERRRRR", e);
   }
 };
 
 export const loginController = async (req, res, next) => {
   try {
+    console.log("AAAAAAAAA", req.body);
+
     const data = await login(req.body);
+
+    res.cookie("Authorization", `Bearer ${data.accessToken}`, {});
     res.status(200).json({
       status: true,
-      message: "Account login successful",
+      message: "login successful",
       data,
     });
   } catch (e) {
+    console.log("ERRRRR", e);
+
     next(createHttpError(e.statusCode, e.message));
   }
 };

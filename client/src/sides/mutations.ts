@@ -40,3 +40,13 @@ export const getProtected = async () => {
     return err;
   }
 };
+
+export const loginMutation = async (payload: any) => {
+  try {
+    const res = await axios.post(`${config.apiUrl}/auth/login`, payload);
+    return res;
+  } catch (err) {
+    console.log("error in loginMutation", err);
+    return err;
+  }
+};

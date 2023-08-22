@@ -24,8 +24,6 @@ export const login = async (data) => {
       email,
     },
   });
-  const allusers = await prisma.user.findMany();
-  console.log(data, allusers);
 
   if (!user) {
     throw createHttpError.NotFound("User not registered");

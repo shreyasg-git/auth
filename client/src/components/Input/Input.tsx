@@ -1,9 +1,8 @@
 import * as React from "react";
-import { ChangeEventHandler } from "react";
+import { useMemo, useState } from "react";
 import { FieldValues, UseFormRegister } from "react-hook-form";
-// import styled from "@emotion/styled";
-// import Errors from "../Errors";
-// import Icon from "../Icon";
+import Colors from "../../consts/Colors";
+import Padding from "../Padding";
 
 type InputProps = {
   errors?: any;
@@ -14,7 +13,7 @@ type InputProps = {
   type?: string;
   label?: string;
   register: UseFormRegister<FieldValues | any>;
-  validationSchema: any;
+  validationSchema?: any;
 } & React.HTMLProps<HTMLInputElement>;
 
 const Input: React.FC<InputProps> = ({
@@ -22,7 +21,6 @@ const Input: React.FC<InputProps> = ({
   errors,
   disabled = false,
   name,
-  onChange,
   placeholder,
   required,
   type,
@@ -37,6 +35,24 @@ const Input: React.FC<InputProps> = ({
     if (inputRef && inputRef.current) inputRef.current.focus();
   };
 
+  const { labelColor, borderColor, textColor } = useMemo(() => {
+    if (errors && errors[name]) {
+      return {
+        labelColor: Colors.red,
+        borderColor: Colors.red,
+        textColor: Colors.red,
+      };
+    }
+
+    return {
+      labelColor: Colors.primary,
+      borderColor: Colors.primary,
+      textColor: Colors.primary,
+    };
+  }, [errors, name]);
+
+  const registered = register(name, validationSchema);
+
   return (
     <div
       style={{
@@ -44,11 +60,8 @@ const Input: React.FC<InputProps> = ({
         alignItems: "center",
         justifyContent: "center",
         flex: 1,
-
-        // height: "65px",
         position: "relative",
         width: "100%",
-        // backgroundColor: "#454545",
       }}
     >
       <div
@@ -60,43 +73,45 @@ const Input: React.FC<InputProps> = ({
           justifyContent: "center",
           flexDirection: "column",
           flex: 1,
-          // backgroundColor: "#787878",
         }}
       >
-        {/* {icon && <Icon dataTestId={`icon-${name}`} type={icon} />} */}
-        <label htmlFor={name}>
+        <label htmlFor={name} style={{ color: labelColor }}>
           {label}
           {required && "*"}
         </label>
+        <Padding height={8} />
         <input
           style={{
             display: "flex",
             flex: 1,
             width: "92%",
-            // color: "#f7f7f7",
             padding: "12px 0 12px 17px",
-            // width: "99%",
             fontSize: "15px",
             border: "1px solid #000",
-            // border: "1px solid #e80700",
             borderRadius: "5px",
             transition: "border, color 0.2s ease-in-out",
             background: "transparent",
+            borderColor,
+            color: textColor,
           }}
-          // ref={inputRef}
           aria-label={name}
           data-testid={name}
           tabIndex={0}
           type={type}
-          // name={name}
-          // onChange={onChange}
           placeholder={placeholder}
           value={value}
           disabled={disabled}
-          {...register(name, validationSchema)}
+          {...registered}
         />
         {errors && errors[name] && (
-          <span className="error" style={{ color: "red" }}>
+          <span
+            style={{
+              color: Colors.red,
+              marginBlock: "5px",
+              fontWeight: 100,
+              fontSize: "12px",
+            }}
+          >
             {errors[name]?.message}
           </span>
         )}

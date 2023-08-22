@@ -2,45 +2,46 @@ import React, { useState } from "react";
 import { Button, Input } from "../../components";
 import Colors from "../../consts/Colors";
 import { useForm } from "react-hook-form";
-import { useMutation } from "react-query";
-import { getProtected, signUp } from "../../sides/mutations";
+import { getProtected, loginMutation } from "../../sides/mutations";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useAuthContext } from "../../contexts/AuthContext";
 import Page from "../../components/Page";
 import Padding from "../../components/Padding";
-import { ButtonTypes } from "../../components/Button/Button";
 
-type SignUpPageProps = {};
+type LoginPageProps = {};
 
-const SignUpPage: React.FC<SignUpPageProps> = ({}) => {
-  const { isLoggedIn } = useAuthContext();
-  console.log(isLoggedIn);
+const LoginPage: React.FC<LoginPageProps> = ({}) => {
+  const [errorMsg, setErrorMsg] = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
 
   const schema = yup.object().shape({
     email: yup.string().email().required("Email is required"),
-    password: yup.string().min(8).required("Password is required"),
-    confirmPassword: yup
-      .string()
-      .required("Confirm Password is required")
-      .oneOf([yup.ref("password")], "Passwords do not match"),
+    password: yup.string().required("Password is required"),
   });
   const {
     register,
     handleSubmit,
     formState: { errors },
-    getValues,
   } = useForm({ resolver: yupResolver(schema) });
 
-  const { data, mutate: signUpMutation } = useMutation(signUp, {
-    onSuccess(data, variables, context) {},
-  });
-
   const onSubmit = async (data: any) => {
-    const res = await signUpMutation({
+    setErrorMsg("");
+    const res: any = await loginMutation({
       email: data.email,
       password: data.password,
     });
+    console.log("LOGIN RESPONSE", res);
+
+    if (res && res.name === "AxiosError") {
+      setErrorMsg("Email address or password not valid");
+      return;
+    }
+
+    if (res && res?.status === 200) {
+      console.log("AAAAAAAAAaa");
+
+      setSuccessMsg("Login Successful !");
+    }
   };
 
   return (
@@ -72,25 +73,13 @@ const SignUpPage: React.FC<SignUpPageProps> = ({}) => {
           <Padding height={8} />
 
           <Input
-            // type="email"
             name="password"
             label="Password"
             errors={errors}
             register={register}
             required
           />
-
           <Padding height={8} />
-
-          <Input
-            // type="email"
-            name="confirmPassword"
-            label="Confirm Password"
-            errors={errors}
-            register={register}
-            required
-          />
-          <Padding height={14} />
           <div
             style={{
               flex: 1,
@@ -99,9 +88,32 @@ const SignUpPage: React.FC<SignUpPageProps> = ({}) => {
               justifyContent: "center",
             }}
           >
-            <Button title="SIGNUP" onClick={handleSubmit(onSubmit)} flat />
+            {errorMsg && (
+              <div
+                style={{
+                  color: Colors.red,
+                  marginBlock: "5px",
+                  fontWeight: 100,
+                  fontSize: "12px",
+                }}
+              >
+                {errorMsg}
+              </div>
+            )}
+            {successMsg && (
+              <div
+                style={{
+                  color: Colors.green,
+                  marginBlock: "5px",
+                  fontWeight: 100,
+                  fontSize: "15px",
+                }}
+              >
+                {successMsg}
+              </div>
+            )}
           </div>
-          <Padding height={14} />
+          <Padding height={8} />
           <div
             style={{
               flex: 1,
@@ -110,17 +122,13 @@ const SignUpPage: React.FC<SignUpPageProps> = ({}) => {
               justifyContent: "center",
             }}
           >
-            <Button
-              title="Go To Login Page"
-              // onClick={handleSubmit(onSubmit)}
-              flat
-              type={ButtonTypes.SECONDARY}
-            />
+            <Button title="Login" onClick={handleSubmit(onSubmit)} flat />
           </div>
+          <Padding height={14} />
         </div>
       </div>
     </Page>
   );
 };
 
-export default SignUpPage;
+export default LoginPage;
