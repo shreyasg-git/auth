@@ -1,9 +1,26 @@
 import { registerUser, login } from "../services/auth.services";
 import createHttpError from "http-errors";
+import { prisma } from "..";
+import jwt from "jsonwebtoken";
 
 export const registerController = async (req, res, next) => {
   try {
+    const alreadyExists = await prisma.user.findFirst({
+      where: { email: req.body.email },
+    });
+
+    if (alreadyExists) {
+      return res.status(400).json({
+        status: false,
+        message: "User already exists",
+        // data: user,
+      });
+    }
+
     const user = await registerUser(req.body);
+    res.cookie("Authorization", `Bearer ${user.accessToken}`, {
+      // httpOnly: true,
+    });
     res.status(200).json({
       status: true,
       message: "User created successfully",

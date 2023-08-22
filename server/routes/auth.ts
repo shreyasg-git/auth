@@ -11,6 +11,6 @@ const router = express.Router();
 
 router.post("/", registerController);
 router.post("/login", loginController);
-router.get("/", authGuard, protectedController);
+router.get("/protected", authGuard, protectedController);
 
 export { router };
